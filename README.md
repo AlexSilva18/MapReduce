@@ -1,2 +1,4 @@
 # MapReduce
-Multi-Core MapReduceframework for multithreaded data processing on a single computer that follows the “MapReduce” paradigm.
+Multi-Core MapReduce
+
+framework for multithreaded data processing on a single computer that follows the “MapReduce” paradigm.
