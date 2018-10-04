@@ -1,7 +1,7 @@
 all:mapreduce
 
 mapreduce:mapreduce.cpp
-	g++ main.cpp mapreduce.cpp -o mapreduce
+	g++ -Wall -Werror -fsanitize=address main.cpp mapreduce.cpp framework.cpp -o mapred
 
 clean:
-	rm -rf mapreduce Makefile~ main.cpp~ mapreduce.cpp~
+	rm -rf mapred Makefile~ main.cpp~ mapreduce.cpp~ framework.cpp~ framework.h~ mapreduce.h~
