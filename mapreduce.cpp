@@ -1,4 +1,6 @@
 #include "mapreduce.h"
+#include <sys/ipc.h>
+#include <sys/shm.h>
 
 int mapWords(){
   return 0;
@@ -15,3 +17,4 @@ int mapInts(){
 int reduceInts(){
   return 0;
 }
+

@@ -19,6 +19,7 @@ struct executionStream {
 };
 
 
+
 // iterates through all the flags to verify their validity
 void getFlag(char* inputFlags[], executionStream *stream);
 
@@ -32,7 +33,8 @@ void split(vector<string> vWords, string app, string impl);
 
 // combine
 
-
+void readInputWords(const char*);
+void printVector(vector<string>);
 
 
 
