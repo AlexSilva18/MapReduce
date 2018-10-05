@@ -1,8 +1,4 @@
 #include "framework.h"
-#include <stdio.h>
-#include <string>
-
-
 
 void getFlag(char* inputFlags[], executionStream *stream){
   int i = 0;
@@ -53,7 +49,7 @@ void getFlag(char* inputFlags[], executionStream *stream){
 }
 
 
-void readInputInts(executionStream *stream){			////NEW
+void readInputInts(executionStream *stream){
 	const char* file = stream->inputFile.c_str();
 	ifstream readFile;
 	readFile.open(file);
@@ -78,14 +74,10 @@ void readInputInts(executionStream *stream){			////NEW
 
 void readInputWords(executionStream *stream){
 
-        const char* file = stream->inputFile.c_str();
-
 	// Open file to read
+        const char* file = stream->inputFile.c_str();
         ifstream readFile;
-	//readFile.open((stream->app).c_str());
 	readFile.open(file);
-	//readFile.open("word_input.txt");
-	// Initialize vector object for storing words
 	vector<string> vWords;
 	string currWord;
 	
@@ -150,7 +142,7 @@ void readInputWords(executionStream *stream){
 	        cout << "COULD NOT OPEN FILE";
 	}
 	
-	printVector(vWords);
+	//printVector(vWords);
 
 	// place vWords in shared memory and then call split
 
@@ -167,13 +159,62 @@ void readInputWords(executionStream *stream){
 // Print all words in vector vWords
 template <class inputType>
 void printVector(vector<inputType> vector){
-	for(int i = 0; i < (int)vector.size(); i++){
+	for(unsigned int i = 0; i < vector.size(); i++){
 	  cout << i << ") " << vector[i] << "\n";
 	}
 }
 
 template <class inputType>
 void split(vector<inputType> vInput, int num_maps){
-  printVector(vInput);
-  //cout << "num_map is : " << num_maps << endl;
+	//printVector(vInput);
+	
+	int splitFactor;
+	int vSize = vInput.size();
+	splitFactor = vSize/num_maps;
+	int remainder = vSize % num_maps;
+	
+	cout << "splitFactor: " << splitFactor << endl;
+	
+	vector<int> vInputSizes;
+	int startInd, endInd;
+	startInd = 0;
+	
+	for(unsigned int i = 0; i < num_maps; i++){
+		if(i == num_maps-1){
+			vInputSizes.push_back(splitFactor + remainder);
+			
+		}
+		else{
+			vInputSizes.push_back(splitFactor);
+			
+		}
+		
+	}
+	
+	vector<int> vInputIndexes;
+	
+	for(int i = 0; i < num_maps; i++){
+		vInputIndexes.push_back(startInd);
+		endInd = startInd + (vInputSizes[i] - 1);
+		vInputIndexes.push_back(endInd);
+		startInd = endInd+1;
+	}
+	
+		InputStructWords *inStruct = new InputStructWords;
+		inStruct->vInputIndexes = vInputIndexes;
+		inStruct->vWords = vInput;
+		
+		//pthread_t newThread;
+
+		//exIDs[0] = (pthread_create(&newThread, NULL, printStuff, (void*) inStruct)); 
+			
+	
+	cout << "num_map is : " << num_maps << endl;
+	
 }
+
+/*void *printStuff(void* inStruct){
+	//cout << (InputStructWords*)inStruct->vWords[0];
+	cout <<"Hello"<<endl;
+}*/
+

@@ -7,8 +7,11 @@
 #include <fstream>
 #include <vector>
 #include <bits/stdc++.h>
+#include <stdio.h>
 
 using namespace std;
+
+extern vector<int> exIDs;
 
 struct executionStream {
   string app;
@@ -17,6 +20,16 @@ struct executionStream {
   int num_reduces;
   string inputFile;
   string outputFile;
+};
+
+struct InputStructWords {
+	vector<string> vWords;
+	vector<int> vInputIndexes;
+};
+
+struct InputStructInts {
+	vector<string> vInts;
+	vector<int> vInputIndexes;
 };
 
 // iterates through all the flags to verify their validity
@@ -34,7 +47,7 @@ template <class inputType>
 void split(vector<inputType>, int);
 
 
-
+void *printStuff(void*);
 // shuffle
 
 // combine
