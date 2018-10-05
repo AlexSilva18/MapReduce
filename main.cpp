@@ -23,6 +23,6 @@ int main(int argc, char* argv[]){
 	}
 	else if (stream->app == "sort"){
 	        // run sort
-	        cout << "run sort" << endl;
+	        readInputInts(stream);
 	}
 }

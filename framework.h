@@ -7,6 +7,7 @@
 #include <fstream>
 #include <vector>
 #include <bits/stdc++.h>
+
 using namespace std;
 
 struct executionStream {
@@ -22,13 +23,16 @@ struct executionStream {
 void getFlag(char**, executionStream*);
 
 void readInputWords(executionStream*);
-void printVector(vector<string>);
 
+void readInputInts(executionStream*);
 
+template <class inputType>
+void printVector(vector<inputType>);
 
 // split
 template <class inputType>
 void split(vector<inputType>, int);
+
 
 
 // shuffle

@@ -1,5 +1,8 @@
 #include "framework.h"
 #include <stdio.h>
+#include <string>
+
+
 
 void getFlag(char* inputFlags[], executionStream *stream){
   int i = 0;
@@ -49,7 +52,32 @@ void getFlag(char* inputFlags[], executionStream *stream){
 
 }
 
+
+void readInputInts(executionStream *stream){			////NEW
+	const char* file = stream->inputFile.c_str();
+	ifstream readFile;
+	readFile.open(file);
+	vector<int> vInts;
+	string currStr;
+	
+	if(readFile.is_open()){
+		
+		while(!readFile.eof()){
+			
+			readFile >> currStr;
+			vInts.push_back(atoi(currStr.c_str()));
+		}
+
+		printVector(vInts);
+		
+		// CALL SPLIT METHOD HERE
+
+	}
+}
+
+
 void readInputWords(executionStream *stream){
+
         const char* file = stream->inputFile.c_str();
 
 	// Open file to read
@@ -122,7 +150,7 @@ void readInputWords(executionStream *stream){
 	        cout << "COULD NOT OPEN FILE";
 	}
 	
-	//printVector(vWords);
+	printVector(vWords);
 
 	// place vWords in shared memory and then call split
 
@@ -137,7 +165,8 @@ void readInputWords(executionStream *stream){
 }
 
 // Print all words in vector vWords
-void printVector(vector<string> vector){
+template <class inputType>
+void printVector(vector<inputType> vector){
 	for(int i = 0; i < (int)vector.size(); i++){
 	  cout << i << ") " << vector[i] << "\n";
 	}
