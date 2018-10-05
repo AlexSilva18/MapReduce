@@ -49,7 +49,8 @@ void getFlag(char* inputFlags[], executionStream *stream){
 
 }
 
-void readInputWords(const char* file){
+void readInputWords(executionStream *stream){
+        const char* file = stream->inputFile.c_str();
 
 	// Open file to read
         ifstream readFile;
@@ -67,38 +68,37 @@ void readInputWords(const char* file){
 	
 		// Read file word by word
 		while(!readFile.eof()){
-	
-		        // Change current word to all lower case letters
+		        
+		        // Check for non-alphabetic words
+			if(currWord == "—"){
+			        readFile >> currWord;
+				continue;
+			}
+			
+			// Change current word to all lower case letters
 		        transform(currWord.begin(), currWord.end(), currWord.begin(), ::tolower);
-		
+		        
 			// Checks for commas, periods etc and removes them
 			int cLen = currWord.length();
 			if(currWord[cLen-1] == '.' || currWord[cLen-1] == ',' || currWord[cLen-1] == '!'
 			   || currWord[cLen-1] == ';' || currWord[cLen-1] == '?' || currWord[cLen-1] == ':'
 			   || currWord[cLen-1] == ')' || currWord[cLen-1] == '\''){
-				  
+				  			        
 			        // NEED TO FIX "control.'"
-				        
 			        currWord[cLen-1] = '\0';
-			        
-				if(currWord[cLen-2] == '.' || currWord[cLen-1] == '?' || currWord[cLen-1] == '!'
-					|| currWord[cLen-1] == '\'')
+
+				if(cLen > 1 && (currWord[cLen-2] == '.' || currWord[cLen-2] == '?' 
+				|| currWord[cLen-2] == '!' || currWord[cLen-2] == '\''))
 				  currWord[cLen-2] = '\0';
-			}
-			
-			// Additional check for non-alphabetic words
-			if(currWord == "—"){
-			        readFile >> currWord;
-				continue;
 			}
 		
 			// If a word contains a hyphen, split them
-			unsigned int hPos;
-			hPos = currWord.find('-');
 			if(currWord.find('-') != string::npos){
+				unsigned int hPos;
+				hPos = currWord.find('-');
 				string tempStr1, tempStr2;
-				tempStr1 = currWord.substr(0, hPos);
-				tempStr2 = currWord.substr(hPos+1, currWord.length());
+				tempStr1 = currWord.substr(0, (int)hPos);
+				tempStr2 = currWord.substr((int)hPos+1, currWord.length());
 				if(tempStr1[0] >= 'a' && tempStr1[0] <= 'z'){
 					vWords.push_back(tempStr1);
 				}
@@ -114,7 +114,7 @@ void readInputWords(const char* file){
 			// Advance to next word to be read in
 			readFile >> currWord;
 		}
-	
+		readFile >> currWord;
 	}
 	
 	// If file is not open, print error
@@ -122,23 +122,29 @@ void readInputWords(const char* file){
 	        cout << "COULD NOT OPEN FILE";
 	}
 	
-	/*
-	int key = 99999;
-	int seg_id;
-	seg_id = shmget(key, sizeof(vWords), IPC_CREAT | 0666);
+	//printVector(vWords);
+
+	// place vWords in shared memory and then call split
+
+	if (stream->impl == "procs"){
+	  split(vWords, stream->num_maps);
+	}
+	else if (stream->impl == "threads"){
+	  split(vWords, stream->num_maps);
+	}
 	
-	if(seg_id == -1)
-		cout << "ERROR, COULD NOT SAVE VECTOR ON SHARED MEMORY";
-	*/
-	
-	printVector(vWords);
 
 }
 
 // Print all words in vector vWords
 void printVector(vector<string> vector){
-	for(unsigned int i = 0; i < vector.size(); i++){
-	  cout << vector[i] << "\n";
+	for(int i = 0; i < (int)vector.size(); i++){
+	  cout << i << ") " << vector[i] << "\n";
 	}
 }
 
+template <class inputType>
+void split(vector<inputType> vInput, int num_maps){
+  printVector(vInput);
+  //cout << "num_map is : " << num_maps << endl;
+}

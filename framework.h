@@ -18,23 +18,23 @@ struct executionStream {
   string outputFile;
 };
 
-
-
 // iterates through all the flags to verify their validity
-void getFlag(char* inputFlags[], executionStream *stream);
+void getFlag(char**, executionStream*);
+
+void readInputWords(executionStream*);
+void printVector(vector<string>);
 
 
 
 // split
-void split(vector<string> vWords, string app, string impl);
+template <class inputType>
+void split(vector<inputType>, int);
 
 
 // shuffle
 
 // combine
 
-void readInputWords(const char*);
-void printVector(vector<string>);
 
 
 

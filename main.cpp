@@ -19,7 +19,7 @@ int main(int argc, char* argv[]){
 	
         if (stream->app == "wordcount"){
 	        //run wordcount
-	        readInputWords(stream->inputFile.c_str());
+	        readInputWords(stream);
 	}
 	else if (stream->app == "sort"){
 	        // run sort
