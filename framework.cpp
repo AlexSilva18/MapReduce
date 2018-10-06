@@ -200,21 +200,25 @@ void split(vector<inputType> vInput, int num_maps){
 		startInd = endInd+1;
 	}
 	
-		InputStructWords *inStruct = new InputStructWords;
-		inStruct->vInputIndexes = vInputIndexes;
-		inStruct->vWords = vInput;
-		
-		//pthread_t newThread;
-
-		//exIDs[0] = (pthread_create(&newThread, NULL, printStuff, (void*) inStruct)); 
-			
+	InputStructWords *inStruct = new InputStructWords;
+	inStruct->vInputIndexes = vInputIndexes;
+	inStruct->vWords = vInput;
 	
+	pthread_t newThread;
+	int retval = pthread_create(&newThread, NULL, printStuff, (void*) inStruct);
+	if(!retval)
+		exIDs.push_back(newThread);
+		
+	cout << "exIDs: " << exIDs[0] << endl;
 	cout << "num_map is : " << num_maps << endl;
+	
+	pthread_join(newThread, NULL);
 	
 }
 
-/*void *printStuff(void* inStruct){
+void *printStuff(void* inStruct){
 	//cout << (InputStructWords*)inStruct->vWords[0];
 	cout <<"Hello"<<endl;
-}*/
+	return NULL;
+}
 

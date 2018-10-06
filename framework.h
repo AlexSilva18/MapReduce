@@ -11,7 +11,7 @@
 
 using namespace std;
 
-extern vector<int> exIDs;
+static vector<int> exIDs;
 
 struct executionStream {
   string app;
