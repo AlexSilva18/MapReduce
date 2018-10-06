@@ -3,7 +3,8 @@
 
 // Global variables
 vector<pthread_t> exIDs;
-
+vector<int> vInts;
+vector<string> vWords;
 
 void getFlag(char* inputFlags[], executionStream *stream){
   int i = 0;
@@ -58,7 +59,7 @@ void readInputInts(executionStream *stream){
 	const char* file = stream->inputFile.c_str();
 	ifstream readFile;
 	readFile.open(file);
-	vector<int> vInts;
+	//vector<int> vInts;
 	string currStr;
 	
 	if(readFile.is_open()){
@@ -83,7 +84,7 @@ void readInputWords(executionStream *stream){
         const char* file = stream->inputFile.c_str();
         ifstream readFile;
 	readFile.open(file);
-	vector<string> vWords;
+	//vector<string> vWords;
 	string currWord;
 	
 	if(readFile.is_open()){
@@ -152,10 +153,10 @@ void readInputWords(executionStream *stream){
 	// place vWords in shared memory and then call split
 
 	if (stream->impl == "procs"){
-	  split(vWords, stream->num_maps);
+	  split(stream->num_maps);
 	}
 	else if (stream->impl == "threads"){
-	  split(vWords, stream->num_maps);
+	  split(stream->num_maps);
 	}
 	
 
@@ -169,11 +170,10 @@ void printVector(vector<inputType> vector){
 	}
 }
 
-template <class inputType>
-void split(vector<inputType> vInput, int num_maps){
+void split(int num_maps){
 	
 	int splitFactor;
-	int vSize = vInput.size();
+	int vSize = vWords.size();
 	cout << "vSize: " << vSize << endl;
 	splitFactor = vSize/num_maps;
 	int remainder = vSize % num_maps;
@@ -198,9 +198,8 @@ void split(vector<inputType> vInput, int num_maps){
 	
 	// Fills in input structs and starts threads
 	
-	vector<int> vInputIndexes;
-	
 	for(int i = 0; i < num_maps; i++){
+		vector<int> vInputIndexes;
 		vInputIndexes.push_back(startInd);
 		endInd = startInd + (vInputSizes[i] - 1);
 		vInputIndexes.push_back(endInd);
@@ -208,16 +207,14 @@ void split(vector<inputType> vInput, int num_maps){
 
 		InputStructWords *inStruct = new InputStructWords;
 		inStruct->vInputIndexes = vInputIndexes;
-		inStruct->vWords = vInput;
+		
 		
 		// Start thread
 		pthread_t newThread;
-		int retval = pthread_create(&newThread, NULL, printStuff, (void*)inStruct);
+		int retval = pthread_create(&newThread, NULL, runMapWords, (void*)inStruct);
 		
-		if(!retval){
+		if(!retval)
 			exIDs.push_back(newThread);
-			
-		}
 		else
 			cout << "ERROR, PTHREAD " << num_maps << " NOT CREATED" << endl;
 			
@@ -232,10 +229,18 @@ void split(vector<inputType> vInput, int num_maps){
 	
 }
 
-void *printStuff(void* input){
+// Run thread/words version of map
+void *runMapWords(void* input){
+	
+	// DON'T NEED vWords in struct
+	
 	InputStructWords *inStruct = ((InputStructWords*)input);
-	vector<string> vWords = inStruct->vWords;
-	cout << "Thread Executed" << endl;
+	vector<int> vInputIndexes = inStruct->vInputIndexes;
+	int start, end;
+	start = vInputIndexes[0];
+	end = vInputIndexes[1];
+	
+	cout << "Start: " << start << " End: " << end << endl;
 	return NULL;
 }
 

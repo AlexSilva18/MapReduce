@@ -41,11 +41,10 @@ template <class inputType>
 void printVector(vector<inputType>);
 
 // split
-template <class inputType>
-void split(vector<inputType>, int);
+void split(int);
 
 
-void *printStuff(void*);
+void *runMapWords(void*);
 // shuffle
 
 // combine
