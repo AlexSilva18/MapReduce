@@ -11,8 +11,6 @@
 
 using namespace std;
 
-static vector<int> exIDs;
-
 struct executionStream {
   string app;
   string impl;

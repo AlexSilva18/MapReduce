@@ -1,5 +1,10 @@
 #include "framework.h"
 
+
+// Global variables
+vector<pthread_t> exIDs;
+
+
 void getFlag(char* inputFlags[], executionStream *stream){
   int i = 0;
   
@@ -166,30 +171,32 @@ void printVector(vector<inputType> vector){
 
 template <class inputType>
 void split(vector<inputType> vInput, int num_maps){
-	//printVector(vInput);
 	
 	int splitFactor;
 	int vSize = vInput.size();
+	cout << "vSize: " << vSize << endl;
 	splitFactor = vSize/num_maps;
 	int remainder = vSize % num_maps;
-	
-	cout << "splitFactor: " << splitFactor << endl;
 	
 	vector<int> vInputSizes;
 	int startInd, endInd;
 	startInd = 0;
 	
-	for(unsigned int i = 0; i < num_maps; i++){
-		if(i == num_maps-1){
+	for(int i = 0; i < num_maps; i++){
+		if(i == (num_maps-1)){
 			vInputSizes.push_back(splitFactor + remainder);
+			cout << "SplitFactor: " << splitFactor+remainder << endl;
 			
 		}
 		else{
 			vInputSizes.push_back(splitFactor);
-			
+			cout << "SplitFactor: " << splitFactor << endl;
 		}
 		
+		
 	}
+	
+	// Fills in input structs and starts threads
 	
 	vector<int> vInputIndexes;
 	
@@ -198,27 +205,37 @@ void split(vector<inputType> vInput, int num_maps){
 		endInd = startInd + (vInputSizes[i] - 1);
 		vInputIndexes.push_back(endInd);
 		startInd = endInd+1;
+
+		InputStructWords *inStruct = new InputStructWords;
+		inStruct->vInputIndexes = vInputIndexes;
+		inStruct->vWords = vInput;
+		
+		// Start thread
+		pthread_t newThread;
+		int retval = pthread_create(&newThread, NULL, printStuff, (void*)inStruct);
+		
+		if(!retval){
+			exIDs.push_back(newThread);
+			
+		}
+		else
+			cout << "ERROR, PTHREAD " << num_maps << " NOT CREATED" << endl;
+			
 	}
 	
-	InputStructWords *inStruct = new InputStructWords;
-	inStruct->vInputIndexes = vInputIndexes;
-	inStruct->vWords = vInput;
-	
-	pthread_t newThread;
-	int retval = pthread_create(&newThread, NULL, printStuff, (void*) inStruct);
-	if(!retval)
-		exIDs.push_back(newThread);
+	for(int i = 0; i < num_maps; i++){
 		
-	cout << "exIDs: " << exIDs[0] << endl;
-	cout << "num_map is : " << num_maps << endl;
-	
-	pthread_join(newThread, NULL);
+		pthread_join(exIDs[i], NULL);
+
+		cout << "Joining thread: " << i << endl;
+	}
 	
 }
 
-void *printStuff(void* inStruct){
-	//cout << (InputStructWords*)inStruct->vWords[0];
-	cout <<"Hello"<<endl;
+void *printStuff(void* input){
+	InputStructWords *inStruct = ((InputStructWords*)input);
+	vector<string> vWords = inStruct->vWords;
+	cout << "Thread Executed" << endl;
 	return NULL;
 }
 
