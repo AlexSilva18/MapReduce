@@ -7,6 +7,8 @@
 vector<pair <string, int> > mapWords(vector<string> vStrings, int start, int end){
 	vector<pair <string, int> > mappedWords;
 	vector<string> vPartition;
+
+	cout << "Here" << endl;
 	
 	for(int i = start; i <= end; i++){
 	  vPartition.push_back(vStrings[i]);

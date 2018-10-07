@@ -355,21 +355,23 @@ void createProcesses(executionStream *stream, vector<string> vStrings, vector<pa
 			break;
 		}
 		else if (pid < 0){
-		        cout << ("ERROR, fork failed") << endl;;
+		        cout << ("ERROR, fork failed") << endl;
 			exit(0);			      
 		}
 	}
 }
 
 void createThreads(executionStream *stream, vector<string> vStrings, vector<pair <int, int> > vIndexes, vector<string>* sMemoryPtr){
+	
+	InputStructData *inStruct = new InputStructData;
+
 	for(int i = 0; i < stream->num_maps; i++){
-	        InputStructData inStruct;
-		inStruct.vPartition = vStrings;
-		inStruct.vIndexes.push_back(vIndexes[i].first);
-		inStruct.vIndexes.push_back(vIndexes[i].second);
-		  
+		inStruct->vPartition = vStrings;
+		inStruct->vIndexes.push_back(vIndexes[i].first);
+		inStruct->vIndexes.push_back(vIndexes[i].second);
+		
 		pthread_t newThread;
-		int retval = pthread_create(&newThread, NULL, runMapWords, (void*)&inStruct);    
+		int retval = pthread_create(&newThread, NULL, runMapWords, (void*)inStruct);    
 	if(!retval)
 		exIDs.push_back(newThread);
 	else
@@ -382,11 +384,14 @@ void createThreads(executionStream *stream, vector<string> vStrings, vector<pair
 }
 
 void *runMapWords(void* input){
-	
-	//InputStructData *inStruct = ((InputStructData*)input);
-	//mapWords(vStrings, inStruct->vInputIndexes);
+
+	cout << "Thread Running" << endl;
+	//int start;
+	InputStructData *inStruct = ((InputStructData*)input);
+	mapWords(inStruct->vPartition, inStruct->vIndexes[0], inStruct->vIndexes[1]);
+	//vector<string> vStrings = inStruct -> vPartition;
         		        // call Map
-  //vector<pair <string, int> > mappedWords = mapWords(vStrings, vIndexes[i].first, vIndexes[i].second);
+  	//vector<pair <string, int> > mappedWords = mapWords(vStrings, vIndexes[i].first, vIndexes[i].second);
 			// after map complete: add mappedWords to shared memory
 			// When everything in shared memory: call Shuffle
 			// after shuffle complete: call Reduce
