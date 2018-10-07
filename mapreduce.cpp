@@ -3,26 +3,33 @@
 #include <sys/ipc.h>
 #include <sys/shm.h>
 
-vector<pair <string, int> > mapWords(vector<string> vStrings, vector<int> vIndex){
-        vector<pair <string, int> > mappedWords;
-	// int start, end;
-	// start = vIndex[0];
-	// end = vIndex[1];
-	vector<string> vMapped;
-	vector<int> vCount;
+
+vector<pair <string, int> > mapWords(vector<string> vStrings, vector<pair <int, int> > vIndex){
+	vector<pair <string, int> > mappedWords;
+	
+	int start, end;
+	start = vIndex[0].first;
+	end = vIndex[0].second;
+	
+	
+	string currStr;
+	
+	vector<string> stringsProcessed;
 	
 	sort(vStrings.begin(), vStrings.end());
 	
-	//cout << "Count: " << count(vStrings.begin(), vStrings.end(), vStrings[103]);
-	
-	
-	
-	for(unsigned int i = 0; i < vStrings.size(); i++){
-		cout << vStrings[i] << endl;
+	for(int i = start; i < end; i++){
+		currStr = vStrings[i];
+		if(find(stringsProcessed.begin(), stringsProcessed.end(), currStr) == stringsProcessed.end()){
+			stringsProcessed.push_back(currStr);
+			mappedWords.push_back(make_pair(currStr, count(vStrings.begin(), vStrings.end(), currStr)));
+		}
 	}
 	
-	
-	
+	for(unsigned int i = 0; i < mappedWords.size(); i++){
+		cout << mappedWords[i].first << " " << mappedWords[i].second << endl;
+	}
+		
   return mappedWords;
 }
 
