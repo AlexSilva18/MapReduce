@@ -8,6 +8,12 @@
 #include <vector>
 #include <bits/stdc++.h>
 #include <stdio.h>
+#include <fcntl.h>
+#include <sys/shm.h>
+#include <sys/ipc.h>
+#include <unistd.h>
+#include <sys/types.h>
+#include <sys/wait.h>
 
 using namespace std;
 
@@ -20,8 +26,8 @@ struct executionStream {
   string outputFile;
 };
 
-struct InputStructWords {
-	vector<string> vWords;
+struct InputStructData {
+	vector<string> vInput;
 	vector<int> vInputIndexes;
 };
 
@@ -31,7 +37,7 @@ struct InputStructInts {
 };
 
 // iterates through all the flags to verify their validity
-void getFlag(char**, executionStream*);
+int getFlag(char**, executionStream*);
 
 void readInputWords(executionStream*);
 
@@ -40,8 +46,7 @@ void readInputInts(executionStream*);
 template <class inputType>
 void printVector(vector<inputType>);
 
-// split
-void split(int);
+void split(executionStream*, vector<string> vInput);
 
 
 void *runMapWords(void*);

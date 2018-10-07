@@ -4,12 +4,15 @@
 int main(int argc, char* argv[]){
 
         if (argc != 13){
-	        perror ("ERROR, incorrect input");
-		exit(0);
+	  cout << "ERROR, incorrect input" << endl;
+	  exit(0);
         }     
 	
 	executionStream *stream = new executionStream;
-	getFlag(argv, stream);
+	if(getFlag(argv, stream) == -1){
+	  cout << "ERROR, Invalid Flags" << endl;
+	  exit(0);
+	}
 	/*cout << "app " << stream->app << endl;
 	cout << "impl " << stream->impl << endl;
 	cout << "num_maps " << stream->num_maps << endl;
@@ -21,8 +24,9 @@ int main(int argc, char* argv[]){
 	        //run wordcount
 	        readInputWords(stream);
 	}
-	else if (stream->app == "sort"){
+        else if (stream->app == "sort"){
 	        // run sort
 	        readInputInts(stream);
 	}
+	return 0;
 }

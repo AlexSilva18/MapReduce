@@ -1,12 +1,9 @@
 #include "framework.h"
 
-
 // Global variables
 vector<pthread_t> exIDs;
-vector<int> vInts;
-vector<string> vWords;
 
-void getFlag(char* inputFlags[], executionStream *stream){
+int getFlag(char* inputFlags[], executionStream *stream){
   int i = 0;
   
   // check each flag and make copy it to execution stream struct
@@ -50,31 +47,37 @@ void getFlag(char* inputFlags[], executionStream *stream){
     }
   }    
   if (i != 8)
-    perror ("ERROR, Invalid flags");
+    return -1;
+  return 0;
 
 }
 
-
 void readInputInts(executionStream *stream){
+        
 	const char* file = stream->inputFile.c_str();
 	ifstream readFile;
 	readFile.open(file);
-	//vector<int> vInts;
+
+	vector<string> vInts;
 	string currStr;
-	
+
 	if(readFile.is_open()){
 		
 		while(!readFile.eof()){
 			
 			readFile >> currStr;
-			vInts.push_back(atoi(currStr.c_str()));
+			vInts.push_back(currStr);
 		}
 
-		printVector(vInts);
-		
+		//printVector(vInts);
 		// CALL SPLIT METHOD HERE
-
 	}
+	else{
+	  cout << "COULD NOT OPEN FILE";
+	  exit(0);
+	}
+	
+	split(stream, vInts);
 }
 
 
@@ -84,7 +87,8 @@ void readInputWords(executionStream *stream){
         const char* file = stream->inputFile.c_str();
         ifstream readFile;
 	readFile.open(file);
-	//vector<string> vWords;
+
+	vector<string> vWords;
 	string currWord;
 	
 	if(readFile.is_open()){
@@ -146,21 +150,16 @@ void readInputWords(executionStream *stream){
 	// If file is not open, print error
 	else{
 	        cout << "COULD NOT OPEN FILE";
+		exit(0);
 	}
 	
 	//printVector(vWords);
 
-	// place vWords in shared memory and then call split
-
-	if (stream->impl == "procs"){
-	  split(stream->num_maps);
-	}
-	else if (stream->impl == "threads"){
-	  split(stream->num_maps);
-	}
+	split(stream, vWords);
 	
 
 }
+
 
 // Print all words in vector vWords
 template <class inputType>
@@ -170,20 +169,23 @@ void printVector(vector<inputType> vector){
 	}
 }
 
-void split(int num_maps){
-	
+void split(executionStream *stream, vector<string> vInput){
+  
 	int splitFactor;
-	int vSize = vWords.size();
+	int vSize;
+	
+	vSize = vInput.size();
 	cout << "vSize: " << vSize << endl;
-	splitFactor = vSize/num_maps;
-	int remainder = vSize % num_maps;
+
+	splitFactor = vSize/(stream->num_maps);
+	int remainder = vSize % stream->num_maps;
 	
 	vector<int> vInputSizes;
 	int startInd, endInd;
 	startInd = 0;
 	
-	for(int i = 0; i < num_maps; i++){
-		if(i == (num_maps-1)){
+	for(int i = 0; i < stream->num_maps; i++){
+		if(i == (stream->num_maps-1)){
 			vInputSizes.push_back(splitFactor + remainder);
 			cout << "SplitFactor: " << splitFactor+remainder << endl;
 			
@@ -191,42 +193,90 @@ void split(int num_maps){
 		else{
 			vInputSizes.push_back(splitFactor);
 			cout << "SplitFactor: " << splitFactor << endl;
+		}	
+	}
+	
+	  // Fills in input structs and starts threads
+	
+	for(int i = 0; i < stream->num_maps; i++){
+	      vector<int> vInputIndexes;
+	      vInputIndexes.push_back(startInd);
+	      endInd = startInd + (vInputSizes[i] - 1);
+	      vInputIndexes.push_back(endInd);
+	      startInd = endInd+1;
+	      
+	      
+	      InputStructData *inStruct = new InputStructData;
+	      inStruct->vInputIndexes = vInputIndexes;
+	      
+	      int start = vInputIndexes[0];
+	      int end = vInputIndexes[1];
+	      
+	      if (stream->impl == "procs"){
+		
+		vector<string>* sMemoryPtr;
+		
+		if (i == 0){
+		  int shmid;
+		  key_t key;
+		  key = 9876;
+		  
+		  shmid = shmget(key, sizeof(vInput), IPC_CREAT | 0666);
+		  if (shmid < 0){
+		    cout << ("ERROR, Unable to create shared memory") << endl;;
+		    exit(0);
+		  }
+		  cout << "shared memory key is: " << shmid << endl;
+		  
+		  sMemoryPtr = (vector<string>*)shmat (shmid, NULL, 0);
+		  sMemoryPtr = &vInput;
 		}
-		
-		
-	}
-	
-	// Fills in input structs and starts threads
-	
-	for(int i = 0; i < num_maps; i++){
-		vector<int> vInputIndexes;
-		vInputIndexes.push_back(startInd);
-		endInd = startInd + (vInputSizes[i] - 1);
-		vInputIndexes.push_back(endInd);
-		startInd = endInd+1;
+	      
 
-		InputStructWords *inStruct = new InputStructWords;
-		inStruct->vInputIndexes = vInputIndexes;
-		
-		
-		// Start thread
-		pthread_t newThread;
-		int retval = pthread_create(&newThread, NULL, runMapWords, (void*)inStruct);
-		
-		if(!retval)
-			exIDs.push_back(newThread);
-		else
-			cout << "ERROR, PTHREAD " << num_maps << " NOT CREATED" << endl;
-			
+		  //sMemoryPtr = new(shm) vector<string>;
+		  //*sMemoryPtr = vInput;
+		//printVector(*shm);
+		pid_t pid = fork();
+	        int status = 0;
+		// child process
+		if (pid == 0) {
+		  cout << "child #" << i << " pid: " << pid << endl;
+		  cout << "\t>>>>>>>>> \t child Start: " << start << " child End: " << end << endl;
+		  unsigned int j = start;
+		  unsigned int k = end;
+		  while (j < k+1){
+		    cout << j << ") " << (*sMemoryPtr)[j] << endl;
+		    j++;
+		  }
+		  break;
+		}
+		// parent process
+		if (pid > 0){
+		  wait(&status);
+		  cout << "parent pid: " << pid << endl;
+		}
+		else if (pid < 0){
+		  cout << ("ERROR, fork failed") << endl;;
+		  exit(0);			      
+		}
 	}
-	
-	for(int i = 0; i < num_maps; i++){
-		
-		pthread_join(exIDs[i], NULL);
-
-		cout << "Joining thread: " << i << endl;
-	}
-	
+	      
+	      else if (stream->impl == "threads"){	
+	            // Start thread
+	            pthread_t newThread;
+		    int retval = pthread_create(&newThread, NULL, runMapWords, (void*)inStruct);    
+		    if(!retval)
+	                  exIDs.push_back(newThread);
+		    else
+	                  cout << "ERROR, PTHREAD " << stream->num_maps << " NOT CREATED" << endl;
+	      }
+	  }
+	  if (stream->impl == "threads"){	
+	        for(int i = 0; i < stream->num_maps; i++){
+		      pthread_join(exIDs[i], NULL);
+		      cout << "Joining thread: " << i << endl;
+		}
+	  }
 }
 
 // Run thread/words version of map
@@ -234,7 +284,7 @@ void *runMapWords(void* input){
 	
 	// DON'T NEED vWords in struct
 	
-	InputStructWords *inStruct = ((InputStructWords*)input);
+	InputStructData *inStruct = ((InputStructData*)input);
 	vector<int> vInputIndexes = inStruct->vInputIndexes;
 	int start, end;
 	start = vInputIndexes[0];
