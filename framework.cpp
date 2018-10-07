@@ -170,7 +170,7 @@ void printVector(vector<inputType> vector){
 }
 
 vector<pair <int, int> > split(executionStream *stream, vector<string> vInput){
-  vector<pair <int, int> > indexes;
+        vector<pair <int, int> > indexes;
 	int splitFactor;
 	int vSize;
 	
@@ -187,132 +187,210 @@ vector<pair <int, int> > split(executionStream *stream, vector<string> vInput){
 	
 	for(int i = 0; i < stream->num_maps; i++){
 		if(i == (stream->num_maps-1)){
-		  //vInputSizes.push_back(splitFactor + remainder);			
-		  endInd += remainder;
-		  indexes.push_back(make_pair(startInd, endInd));
-				    //cout << "startInd: " << startInd << " endInd: " << endInd << endl;
+		  vInputSizes.push_back(splitFactor + remainder);			
 		}
 		else{
-		  //vInputSizes.push_back(splitFactor);
-		  //indexes.push_back(make_pair(startInd, startInd + splitFactor));
-		  //cout << "startInd: " << startInd << " endInd: " << endInd << endl;
-		  indexes.push_back(make_pair(startInd, endInd));
+		  vInputSizes.push_back(splitFactor);
+	        
 		}
-		startInd += splitFactor + 1;
-		endInd += splitFactor;
 	}
+	// Fills in input structs and starts threads
 	
+	for(int i = 0; i < stream->num_maps; i++){
+	      vector<int> vInputIndexes;
+	      vInputIndexes.push_back(startInd);
+	      endInd = startInd + (vInputSizes[i] - 1);
+	      vInputIndexes.push_back(endInd);
+	      startInd = endInd+1;
+
+	      indexes.push_back(make_pair(vInputIndexes[0],vInputIndexes[1]));	      
+	}
 	return indexes;
-
-	  // Fills in input structs and starts threads
 	
-	//for(int i = 0; i < stream->num_maps; i++){
-	  //vector<int> vInputIndexes;
-	      //vInputIndexes.push_back(startInd);
-	      //endInd = startInd + (vInputSizes[i] - 1);
-	      //vInputIndexes.push_back(endInd);
-	      //startInd = endInd+1;
-
-	      //indexes.push_back(make_pair(3,4));
-	      
-	      
-	      /*InputStructData *inStruct = new InputStructData;
-	      inStruct->vInputIndexes = vInputIndexes;
-	      
-	      int start = vInputIndexes[0];
-	      int end = vInputIndexes[1];
-	      
-	      if (stream->impl == "procs"){
+	//   if (stream->impl == "procs"){
 		
-		vector<string>* sMemoryPtr;
+// 		vector<string>* sMemoryPtr;
 		
-		if (i == 0){
-		  int shmid;
-		  key_t key;
-		  key = 9876;
+// 		if (i == 0){
+// 		  int shmid;
+// 		  key_t key;
+// 		  key = 9876;
 		  
-		  shmid = shmget(key, sizeof(vInput), IPC_CREAT | 0666);
-		  if (shmid < 0){
-		    cout << ("ERROR, Unable to create shared memory") << endl;;
-		    exit(0);
-		  }
-		  cout << "shared memory key is: " << shmid << endl;
+// 		  shmid = shmget(key, sizeof(vInput), IPC_CREAT | 0666);
+// 		  if (shmid < 0){
+// 		    cout << ("ERROR, Unable to create shared memory") << endl;;
+// 		    exit(0);
+// 		  }
+// 		  cout << "shared memory key is: " << shmid << endl;
 		  
-		  sMemoryPtr = (vector<string>*)shmat (shmid, NULL, 0);
-		  sMemoryPtr = &vInput;
-		}
+// 		  sMemoryPtr = (vector<string>*)shmat (shmid, NULL, 0);
+// 		  sMemoryPtr = &vInput;
+// 		}
 	      
 
-		  sMemoryPtr = new(shm) vector<string>;
-		  *sMemoryPtr = vInput;
-		printVector(*shm);
+// 		  sMemoryPtr = new(shm) vector<string>;
+// 		  *sMemoryPtr = vInput;
+// 		printVector(*shm);
 
-		pid_t pid = fork();
-	        int status = 0;
+// 		pid_t pid = fork();
+// 	        int status = 0;
 
-		// child process
-		if (pid == 0) {
+// 		// child process
+// 		if (pid == 0) {
 		  
-		  // map
-		  if (stream->app == "wordcount"){
-		    vector<pair <string, int> > mappedWords;
-		    mappedWords = mapWords(vInput, vInputIndexes);
-		  }
-		  else if (stream->app == "sort"){
-		     vector<int> mappedInts;
-		     mappedInts = mapInts(vInput, vInputIndexes);
-		  }
+// 		  // map
+// 		  if (stream->app == "wordcount"){
+// 		    vector<pair <string, int> > mappedWords;
+// 		    mappedWords = mapWords(vInput, vInputIndexes);
+// 		  }
+// 		  else if (stream->app == "sort"){
+// 		     vector<int> mappedInts;
+// 		     mappedInts = mapInts(vInput, vInputIndexes);
+// 		  }
 
 		  
-		  break;
+// 		  break;
 		  
-		  
-
-cout << "child #" << i << " pid: " << pid << endl;
-		  cout << "\t>>>>>>>>> \t child Start: " << start << " child End: " << end << endl;
-		  unsigned int j = start;
-		  unsigned int k = end;
-		  while (j < k+1){
-		    cout << j << ") " << (*sMemoryPtr)[j] << endl;
-		    j++;
-		   }
 		  
 
-		}
-		// parent process
-		if (pid > 0){
-		  wait(&status);
-		  cout << "parent pid: " << pid << endl;
-		}
-		else if (pid < 0){
-		  cout << ("ERROR, fork failed") << endl;;
-		  exit(0);			      
-		}
-	}
+// cout << "child #" << i << " pid: " << pid << endl;
+// 		  cout << "\t>>>>>>>>> \t child Start: " << start << " child End: " << end << endl;
+// 		  unsigned int j = start;
+// 		  unsigned int k = end;
+// 		  while (j < k+1){
+// 		    cout << j << ") " << (*sMemoryPtr)[j] << endl;
+// 		    j++;
+// 		   }
+		  
+
+// 		}
+// 		// parent process
+// 		if (pid > 0){
+// 		  wait(&status);
+// 		  cout << "parent pid: " << pid << endl;
+// 		}
+// 		else if (pid < 0){
+// 		  cout << ("ERROR, fork failed") << endl;;
+// 		  exit(0);			      
+// 		}
+// 	}
 	      
-	      else if (stream->impl == "threads"){	
-	            // Start thread
-	            pthread_t newThread;
-		    int retval = pthread_create(&newThread, NULL, runMapWords, (void*)inStruct);    
-		    if(!retval)
-	                  exIDs.push_back(newThread);
-		    else
-	                  cout << "ERROR, PTHREAD " << stream->num_maps << " NOT CREATED" << endl;
-	      }
-	  }
-	  if (stream->impl == "threads"){	
-	        for(int i = 0; i < stream->num_maps; i++){
-		      pthread_join(exIDs[i], NULL);
-		}
-	  }*/
+// 	      else if (stream->impl == "threads"){	
+// 	            // Start thread
+// 	            pthread_t newThread;
+// 		    int retval = pthread_create(&newThread, NULL, runMapWords, (void*)inStruct);    
+// 		    if(!retval)
+// 	                  exIDs.push_back(newThread);
+// 		    else
+// 	                  cout << "ERROR, PTHREAD " << stream->num_maps << " NOT CREATED" << endl;
+// 	      }
+// 	  }
+// 	  if (stream->impl == "threads"){	
+// 	        for(int i = 0; i < stream->num_maps; i++){
+// 		      pthread_join(exIDs[i], NULL);
+// 		}
+// 	  }
 }
 
-// Run thread/words version of map
+
+
+vector<string>* createSharedMemory(vector<string> vStrings){
+        int shmid;
+	key_t key;
+	key = 9876;
+	
+	shmid = shmget(key, sizeof(vStrings), IPC_CREAT | 0666);
+	if (shmid < 0){
+	        cout << ("ERROR, Unable to create shared memory") << endl;;
+		exit(0);
+	}
+	
+	//  vector pointing to the shared memory
+	vector<string>* sMemoryPtr;		
+	sMemoryPtr = (vector<string>*)shmat (shmid, NULL, 0);
+	
+	// ways to add to shared memory: 
+	// sMemoryPtr = &vInput;
+	// sMemoryPtr = new(shm) vector<string>;
+	// *sMemoryPtr = vInput;
+	
+	// print out shared memory
+	// 		  unsigned int j = start;
+	// 		  unsigned int k = end;
+	// 		  while (j < k+1){
+	// 		    cout << j << ") " << (*sMemoryPtr)[j] << endl;
+	// 		    j++;
+	// 		   }
+
+	cout << "Memory created Successfull" << endl;
+	// return pointer to shared memory
+	return sMemoryPtr;
+}
+
+void createProcesses(executionStream *stream, vector<string> vStrings, vector<pair <int, int> > vIndexes, vector<string>* sMemoryPtr){
+        // paralelised MapReduce, Shuffle and Combine
+        for(int i = 0; i < stream->num_maps; i++){
+
+	  // process creation
+	        pid_t pid = fork();
+		int status = 0;
+		
+			// child process
+		if (pid == 0) {
+		  // call Map
+		  if (stream->app == "wordcount")      
+		  vector<pair <string, int> > mappedWords = mapWords(vStrings, vIndexes[i].first, vIndexes[i].second);
+		  else if (stream->app == "sort")
+		    vector<int> mappedInts = mapInts(vStrings, vIndexes[i].first, vIndexes[i].second);
+			// after map complete: add mappedWords to shared memory
+			// When everything in shared memory: call Shuffle
+			// after shuffle complete: call Reduce
+			// after reduce complete: call Combine
+		}
+		// parent process
+		else if (pid > 0){
+		        // wait for all processes to finish combining and then return to main
+		        wait(&status);
+			cout << "parent pid: " << pid << endl;
+			break;
+		}
+		else if (pid < 0){
+		        cout << ("ERROR, fork failed") << endl;;
+			exit(0);			      
+		}
+	}
+}
+
+void createThreads(executionStream *stream, vector<string> vStrings, vector<pair <int, int> > vIndexes, vector<string>* sMemoryPtr){
+	for(int i = 0; i < stream->num_maps; i++){
+	        InputStructData inStruct;
+		inStruct.vPartition = vStrings;
+		inStruct.vIndexes.push_back(vIndexes[i].first);
+		inStruct.vIndexes.push_back(vIndexes[i].second);
+		  
+		pthread_t newThread;
+		int retval = pthread_create(&newThread, NULL, runMapWords, (void*)&inStruct);    
+	if(!retval)
+		exIDs.push_back(newThread);
+	else
+	        cout << "ERROR, PTHREAD " << stream->num_maps << " NOT CREATED" << endl;
+
+	}
+	for(int i = 0; i < stream->num_maps; i++){
+	        pthread_join(exIDs[i], NULL);
+	}
+}
+
 void *runMapWords(void* input){
 	
 	//InputStructData *inStruct = ((InputStructData*)input);
 	//mapWords(vStrings, inStruct->vInputIndexes);
-	
+        		        // call Map
+  //vector<pair <string, int> > mappedWords = mapWords(vStrings, vIndexes[i].first, vIndexes[i].second);
+			// after map complete: add mappedWords to shared memory
+			// When everything in shared memory: call Shuffle
+			// after shuffle complete: call Reduce
+			// after reduce complete: call Combine
+
 	return NULL;
 }
-

@@ -27,8 +27,8 @@ struct executionStream {
 };
 
 struct InputStructData {
-	vector<string> vInput;
-	vector<int> vInputIndexes;
+	vector<string> vPartition;
+        vector<int> vIndexes;
 };
 
 struct partitionIndexes {
@@ -46,6 +46,10 @@ template <class inputType>
 void printVector(vector<inputType>);
 
 vector<pair <int, int> > split(executionStream*, vector<string> vInput);
+
+vector<string>* createSharedMemory(vector<string>);
+void createProcesses(executionStream*, vector<string>, vector<pair <int, int> >, vector<string>*);
+void createThreads(executionStream*, vector<string>, vector<pair <int, int> >, vector<string>*);
 
 
 void *runMapWords(void*);

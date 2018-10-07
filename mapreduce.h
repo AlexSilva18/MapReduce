@@ -5,11 +5,11 @@
 #include <algorithm>
 
 
-vector<pair <string, int> > mapWords(vector<string>, vector<int>);
+vector<pair <string, int> > mapWords(vector<string>, int, int);
 
 int reduceWords();
 
-vector<int> mapInts();
+vector<int> mapInts(vector<string>, int, int);
 
 int reduceInts();
 
