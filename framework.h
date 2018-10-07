@@ -53,6 +53,7 @@ void createThreads(executionStream*, vector<string>, vector<pair <int, int> >, v
 
 
 void *runMapWords(void*);
+void *runMapInts(void*);
 // shuffle
 
 // combine

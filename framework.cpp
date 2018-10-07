@@ -287,7 +287,15 @@ void createThreads(executionStream *stream, vector<string> vStrings, vector<pair
 		inStruct->vIndexes.push_back(vIndexes[i].second);
 		
 		pthread_t newThread;
-		int retval = pthread_create(&newThread, NULL, runMapWords, (void*)inStruct);    
+		
+		int retval;
+		
+		if(stream->app == "wordcount")
+			retval = pthread_create(&newThread, NULL, runMapWords, (void*)inStruct); 
+			 
+		else if(stream->app == "sort")
+			retval = pthread_create(&newThread, NULL, runMapInts, (void*)inStruct);
+			
 	if(!retval)
 		exIDs.push_back(newThread);
 	else
@@ -300,9 +308,7 @@ void createThreads(executionStream *stream, vector<string> vStrings, vector<pair
 }
 
 void *runMapWords(void* input){
-
-	cout << "Thread Running" << endl;
-	//int start;
+	
 	InputStructData *inStruct = ((InputStructData*)input);
 	mapWords(inStruct->vPartition, inStruct->vIndexes[0], inStruct->vIndexes[1]);
 	//vector<string> vStrings = inStruct -> vPartition;
@@ -313,5 +319,11 @@ void *runMapWords(void* input){
 			// after shuffle complete: call Reduce
 			// after reduce complete: call Combine
 
+	return NULL;
+}
+
+void *runMapInts(void* input){
+	InputStructData *inStruct = ((InputStructData*)input);
+	mapInts(inStruct->vPartition, inStruct->vIndexes[0], inStruct->vIndexes[1]);
 	return NULL;
 }
