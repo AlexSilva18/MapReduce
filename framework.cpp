@@ -1,7 +1,9 @@
 #include "framework.h"
+#include "mapreduce.h"
 
 // Global variables
 vector<pthread_t> exIDs;
+vector<string> vStrings;
 
 int getFlag(char* inputFlags[], executionStream *stream){
   int i = 0;
@@ -58,7 +60,6 @@ void readInputInts(executionStream *stream){
 	ifstream readFile;
 	readFile.open(file);
 
-	vector<string> vInts;
 	string currStr;
 
 	if(readFile.is_open()){
@@ -66,7 +67,7 @@ void readInputInts(executionStream *stream){
 		while(!readFile.eof()){
 			
 			readFile >> currStr;
-			vInts.push_back(currStr);
+			vStrings.push_back(currStr);
 		}
 
 		//printVector(vInts);
@@ -77,7 +78,7 @@ void readInputInts(executionStream *stream){
 	  exit(0);
 	}
 	
-	split(stream, vInts);
+	split(stream, vStrings);
 }
 
 
@@ -88,7 +89,6 @@ void readInputWords(executionStream *stream){
         ifstream readFile;
 	readFile.open(file);
 
-	vector<string> vWords;
 	string currWord;
 	
 	if(readFile.is_open()){
@@ -130,15 +130,15 @@ void readInputWords(executionStream *stream){
 				tempStr1 = currWord.substr(0, (int)hPos);
 				tempStr2 = currWord.substr((int)hPos+1, currWord.length());
 				if(tempStr1[0] >= 'a' && tempStr1[0] <= 'z'){
-					vWords.push_back(tempStr1);
+					vStrings.push_back(tempStr1);
 				}
 				if(tempStr2[0] >= 'a' && tempStr2[0] <= 'z'){
-					vWords.push_back(tempStr2);
+					vStrings.push_back(tempStr2);
 				}
 			}
 			// If a word doesn't contain special characters, push them onto vector
 			else{
-				vWords.push_back(currWord);
+				vStrings.push_back(currWord);
 			}
 			
 			// Advance to next word to be read in
@@ -153,15 +153,15 @@ void readInputWords(executionStream *stream){
 		exit(0);
 	}
 	
-	//printVector(vWords);
+	//printVector(vStrings);
 
-	split(stream, vWords);
+	split(stream, vStrings);
 	
 
 }
 
 
-// Print all words in vector vWords
+// Print all words in vector vStrings
 template <class inputType>
 void printVector(vector<inputType> vector){
 	for(unsigned int i = 0; i < vector.size(); i++){
@@ -186,13 +186,10 @@ void split(executionStream *stream, vector<string> vInput){
 	
 	for(int i = 0; i < stream->num_maps; i++){
 		if(i == (stream->num_maps-1)){
-			vInputSizes.push_back(splitFactor + remainder);
-			cout << "SplitFactor: " << splitFactor+remainder << endl;
-			
+			vInputSizes.push_back(splitFactor + remainder);			
 		}
 		else{
 			vInputSizes.push_back(splitFactor);
-			cout << "SplitFactor: " << splitFactor << endl;
 		}	
 	}
 	
@@ -274,7 +271,6 @@ void split(executionStream *stream, vector<string> vInput){
 	  if (stream->impl == "threads"){	
 	        for(int i = 0; i < stream->num_maps; i++){
 		      pthread_join(exIDs[i], NULL);
-		      cout << "Joining thread: " << i << endl;
 		}
 	  }
 }
@@ -282,15 +278,9 @@ void split(executionStream *stream, vector<string> vInput){
 // Run thread/words version of map
 void *runMapWords(void* input){
 	
-	// DON'T NEED vWords in struct
+	//InputStructData *inStruct = ((InputStructData*)input);
+	//mapWords(vStrings, inStruct->vInputIndexes);
 	
-	InputStructData *inStruct = ((InputStructData*)input);
-	vector<int> vInputIndexes = inStruct->vInputIndexes;
-	int start, end;
-	start = vInputIndexes[0];
-	end = vInputIndexes[1];
-	
-	cout << "Start: " << start << " End: " << end << endl;
 	return NULL;
 }
 

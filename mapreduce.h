@@ -3,7 +3,7 @@
 
 #include "framework.h"
 
-int mapWords();
+int mapWords(vector<string>, vector<int>);
 
 int reduceWords();
 
