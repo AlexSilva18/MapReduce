@@ -2,12 +2,14 @@
 #define MAPREDUCE_H
 
 #include "framework.h"
+#include <algorithm>
 
-int mapWords(vector<string>, vector<int>);
+
+vector<pair <string, int> > mapWords(vector<string>, vector<int>);
 
 int reduceWords();
 
-int mapInts();
+vector<int> mapInts();
 
 int reduceInts();
 

@@ -3,7 +3,7 @@
 
 // Global variables
 vector<pthread_t> exIDs;
-vector<string> vStrings;
+//vector<string> vStrings;
 
 int getFlag(char* inputFlags[], executionStream *stream){
   int i = 0;
@@ -54,12 +54,12 @@ int getFlag(char* inputFlags[], executionStream *stream){
 
 }
 
-void readInputInts(executionStream *stream){
+vector<string> readInputInts(executionStream *stream){
         
 	const char* file = stream->inputFile.c_str();
 	ifstream readFile;
 	readFile.open(file);
-
+	vector<string> vStrings;
 	string currStr;
 
 	if(readFile.is_open()){
@@ -77,18 +77,18 @@ void readInputInts(executionStream *stream){
 	  cout << "COULD NOT OPEN FILE";
 	  exit(0);
 	}
-	
-	split(stream, vStrings);
+	return vStrings;
+	//split(stream, vStrings);
 }
 
 
-void readInputWords(executionStream *stream){
+vector<string> readInputWords(executionStream *stream){
 
 	// Open file to read
         const char* file = stream->inputFile.c_str();
         ifstream readFile;
 	readFile.open(file);
-
+	vector<string> vStrings;
 	string currWord;
 	
 	if(readFile.is_open()){
@@ -154,8 +154,8 @@ void readInputWords(executionStream *stream){
 	}
 	
 	//printVector(vStrings);
-
-	split(stream, vStrings);
+	return vStrings;
+	//split(stream, vStrings);
 	
 
 }
@@ -169,8 +169,8 @@ void printVector(vector<inputType> vector){
 	}
 }
 
-void split(executionStream *stream, vector<string> vInput){
-  
+vector<pair <int, int> > split(executionStream *stream, vector<string> vInput){
+  vector<pair <int, int> > indexes;
 	int splitFactor;
 	int vSize;
 	
@@ -183,27 +183,40 @@ void split(executionStream *stream, vector<string> vInput){
 	vector<int> vInputSizes;
 	int startInd, endInd;
 	startInd = 0;
+	endInd = splitFactor;
 	
 	for(int i = 0; i < stream->num_maps; i++){
 		if(i == (stream->num_maps-1)){
-			vInputSizes.push_back(splitFactor + remainder);			
+		  //vInputSizes.push_back(splitFactor + remainder);			
+		  endInd += remainder;
+		  indexes.push_back(make_pair(startInd, endInd));
+				    //cout << "startInd: " << startInd << " endInd: " << endInd << endl;
 		}
 		else{
-			vInputSizes.push_back(splitFactor);
-		}	
+		  //vInputSizes.push_back(splitFactor);
+		  //indexes.push_back(make_pair(startInd, startInd + splitFactor));
+		  //cout << "startInd: " << startInd << " endInd: " << endInd << endl;
+		  indexes.push_back(make_pair(startInd, endInd));
+		}
+		startInd += splitFactor + 1;
+		endInd += splitFactor;
 	}
 	
+	return indexes;
+
 	  // Fills in input structs and starts threads
 	
-	for(int i = 0; i < stream->num_maps; i++){
-	      vector<int> vInputIndexes;
-	      vInputIndexes.push_back(startInd);
-	      endInd = startInd + (vInputSizes[i] - 1);
-	      vInputIndexes.push_back(endInd);
-	      startInd = endInd+1;
+	//for(int i = 0; i < stream->num_maps; i++){
+	  //vector<int> vInputIndexes;
+	      //vInputIndexes.push_back(startInd);
+	      //endInd = startInd + (vInputSizes[i] - 1);
+	      //vInputIndexes.push_back(endInd);
+	      //startInd = endInd+1;
+
+	      //indexes.push_back(make_pair(3,4));
 	      
 	      
-	      InputStructData *inStruct = new InputStructData;
+	      /*InputStructData *inStruct = new InputStructData;
 	      inStruct->vInputIndexes = vInputIndexes;
 	      
 	      int start = vInputIndexes[0];
@@ -230,22 +243,41 @@ void split(executionStream *stream, vector<string> vInput){
 		}
 	      
 
-		  //sMemoryPtr = new(shm) vector<string>;
-		  //*sMemoryPtr = vInput;
-		//printVector(*shm);
+		  sMemoryPtr = new(shm) vector<string>;
+		  *sMemoryPtr = vInput;
+		printVector(*shm);
+
 		pid_t pid = fork();
 	        int status = 0;
+
 		// child process
 		if (pid == 0) {
-		  cout << "child #" << i << " pid: " << pid << endl;
+		  
+		  // map
+		  if (stream->app == "wordcount"){
+		    vector<pair <string, int> > mappedWords;
+		    mappedWords = mapWords(vInput, vInputIndexes);
+		  }
+		  else if (stream->app == "sort"){
+		     vector<int> mappedInts;
+		     mappedInts = mapInts(vInput, vInputIndexes);
+		  }
+
+		  
+		  break;
+		  
+		  
+
+cout << "child #" << i << " pid: " << pid << endl;
 		  cout << "\t>>>>>>>>> \t child Start: " << start << " child End: " << end << endl;
 		  unsigned int j = start;
 		  unsigned int k = end;
 		  while (j < k+1){
 		    cout << j << ") " << (*sMemoryPtr)[j] << endl;
 		    j++;
-		  }
-		  break;
+		   }
+		  
+
 		}
 		// parent process
 		if (pid > 0){
@@ -272,7 +304,7 @@ void split(executionStream *stream, vector<string> vInput){
 	        for(int i = 0; i < stream->num_maps; i++){
 		      pthread_join(exIDs[i], NULL);
 		}
-	  }
+	  }*/
 }
 
 // Run thread/words version of map

@@ -31,22 +31,21 @@ struct InputStructData {
 	vector<int> vInputIndexes;
 };
 
-struct InputStructInts {
-	vector<string> vInts;
-	vector<int> vInputIndexes;
+struct partitionIndexes {
+  vector<pair <int, int> > indexes;
 };
 
 // iterates through all the flags to verify their validity
 int getFlag(char**, executionStream*);
 
-void readInputWords(executionStream*);
+vector<string> readInputWords(executionStream*);
 
-void readInputInts(executionStream*);
+vector<string> readInputInts(executionStream*);
 
 template <class inputType>
 void printVector(vector<inputType>);
 
-void split(executionStream*, vector<string> vInput);
+vector<pair <int, int> > split(executionStream*, vector<string> vInput);
 
 
 void *runMapWords(void*);

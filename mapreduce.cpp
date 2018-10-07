@@ -1,17 +1,17 @@
 #include "mapreduce.h"
+#include <algorithm>
 #include <sys/ipc.h>
 #include <sys/shm.h>
-#include <algorithm>
 
-int mapWords(vector<string> vStrings, vector<int> vIndex){
-	
-	/*int start, end;
-	start = vIndex[0];
-	end = vIndex[1];
+vector<pair <string, int> > mapWords(vector<string> vStrings, vector<int> vIndex){
+        vector<pair <string, int> > mappedWords;
+	// int start, end;
+	// start = vIndex[0];
+	// end = vIndex[1];
 	vector<string> vMapped;
 	vector<int> vCount;
 	
-	//sort(vStrings[start], vStrings[end]);
+	sort(vStrings.begin(), vStrings.end());
 	
 	//cout << "Count: " << count(vStrings.begin(), vStrings.end(), vStrings[103]);
 	
@@ -21,17 +21,18 @@ int mapWords(vector<string> vStrings, vector<int> vIndex){
 		cout << vStrings[i] << endl;
 	}
 	
-	*/
 	
-  return 0;
+	
+  return mappedWords;
 }
 
 int reduceWords(){
   return 0;
 }
 
-int mapInts(){
-  return 0;
+vector<int> mapInts(){
+  vector<int> mappedInts;
+  return mappedInts;
 }
 
 int reduceInts(){
