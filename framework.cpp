@@ -1,5 +1,6 @@
 #include "framework.h"
 #include "mapreduce.h"
+#include <sstream>
 
 // Global variables
 vector<pthread_t> exIDs;
@@ -54,7 +55,6 @@ int getFlag(char* inputFlags[], executionStream *stream){
 
 }
 
-// Reads input from integer file
 vector<string> readInputInts(executionStream *stream){
         
 	const char* file = stream->inputFile.c_str();
@@ -78,7 +78,7 @@ vector<string> readInputInts(executionStream *stream){
 	return vStrings;
 }
 
-// Reads input from word file
+
 vector<string> readInputWords(executionStream *stream){
 
 	// Open file to read
@@ -113,12 +113,14 @@ vector<string> readInputWords(executionStream *stream){
 				  			        
 			        // NEED TO FIX "control.'"
 			        currWord[cLen-1] = '\0';
-			        currWord = currWord.substr(0, cLen-1);
+				currWord = currWord.substr(0, cLen-1);
+				cLen--;
 
 				if(cLen > 1 && (currWord[cLen-2] == '.' || currWord[cLen-2] == '?' 
 				|| currWord[cLen-2] == '!' || currWord[cLen-2] == '\''))
 				  currWord[cLen-2] = '\0';
 				  currWord = currWord.substr(0, cLen-1);
+
 			}
 		
 			// If a word contains a hyphen, split them
@@ -164,13 +166,13 @@ void printVector(vector<inputType> vector){
 	}
 }
 
-
 vector<pair <int, int> > split(executionStream *stream, vector<string> vInput){
         vector<pair <int, int> > indexes;
 	int splitFactor;
 	int vSize;
 	
 	vSize = vInput.size();
+	cout << "vSize: " << vSize << endl;
 
 	splitFactor = vSize/(stream->num_maps);
 	int remainder = vSize % stream->num_maps;
@@ -186,6 +188,7 @@ vector<pair <int, int> > split(executionStream *stream, vector<string> vInput){
 		}
 		else{
 		  vInputSizes.push_back(splitFactor);
+	        
 		}
 	}
 	// Fills in input structs and starts threads
@@ -204,7 +207,8 @@ vector<pair <int, int> > split(executionStream *stream, vector<string> vInput){
 
 
 
-vector<string>* createSharedMemory(vector<string> vStrings){
+vector<pair <string, int> >* createSharedMemoryWords(vector<string> vStrings){
+
         int shmid;
 	key_t key;
 	key = 9876;
@@ -216,80 +220,121 @@ vector<string>* createSharedMemory(vector<string> vStrings){
 	}
 	
 	//  vector pointing to the shared memory
-	vector<string>* sMemoryPtr;		
-	sMemoryPtr = (vector<string>*)shmat (shmid, NULL, 0);
-	
-	// ways to add to shared memory: 
-	// sMemoryPtr = &vInput;
-	// sMemoryPtr = new(shm) vector<string>;
-	// *sMemoryPtr = vInput;
-	
-	// print out shared memory
-	// 		  unsigned int j = start;
-	// 		  unsigned int k = end;
-	// 		  while (j < k+1){
-	// 		    cout << j << ") " << (*sMemoryPtr)[j] << endl;
-	// 		    j++;
-	// 		   }
+	vector<pair <string, int> >* sMemoryPtr;		
+
+	sMemoryPtr = (vector<pair <string, int> >*)shmat (shmid, NULL, 0);
 
 	cout << "Memory created Successfull" << endl;
 	// return pointer to shared memory
 	return sMemoryPtr;
 }
 
+vector<int>* createSharedMemoryInts(vector<string> vStrings){
+        int shmid;
+	key_t key;
+	key = 9876;
+	
+	shmid = shmget(key, sizeof(vStrings), IPC_CREAT | 0666);
+	if (shmid < 0){
+	        cout << ("ERROR, Unable to create shared memory") << endl;;
+		exit(0);
+	}
+	
+	//  vector pointing to the shared memory
+	vector<int>* sMemoryPtr;		
+	sMemoryPtr = (vector<int>*)shmat (shmid, NULL, 0);
+	
+	cout << "Memory created Successfull" << endl;
+	// return pointer to shared memory
+	return sMemoryPtr;
+}
 
-void createProcesses(executionStream *stream, vector<string> vStrings, vector<pair <int, int> > vIndexes, vector<string>* sMemoryPtr){
-        // paralelised MapReduce, Shuffle and Combine
-        for(int i = 0; i < stream->num_maps; i++){
+void createProcesses(executionStream *stream, vector<string> vStrings, vector<pair <int, int> > vIndexes){
 
+  //if (stream->app == "wordcount")
+  vector<pair <string, int> >* sMemoryPtr = createSharedMemoryWords(vStrings);
+  vector<int>* sIntMemoryPtr = createSharedMemoryInts(vStrings);
+  int flag = 1;
+  //int status;
+  vector<pair <string, int> > tempVector;
+  vector<int> tempIntVector;
+  // paralelised MapReduce, Shuffle and Combine
+  for(int i = 0; i < stream->num_maps; i++){
 	  // process creation
 	        pid_t pid = fork();
-		int status = 0;
+		int status;
 		
-			// child process
+		// child process
 		if (pid == 0) {
 		  // call Map
-		  if (stream->app == "wordcount")      
-		  vector<pair <string, int> > mappedWords = mapWords(vStrings, vIndexes[i].first, vIndexes[i].second);
-		  else if (stream->app == "sort")
-		    vector<int> mappedInts = mapInts(vStrings, vIndexes[i].first, vIndexes[i].second);
-			// after map complete: add mappedWords to shared memory
+		  if (stream->app == "wordcount") {
+		    vector<pair <string, int> > mappedWords = 
+		      mapWords(vStrings, vIndexes[i].first, vIndexes[i].second);
+		    
+		    // get from shared memory
+		    if (flag != 1)
+		      tempVector = *sMemoryPtr;
+		    
+		    vector<pair <string, int> >* shm = new (sMemoryPtr) vector<pair <string, int> >;
+		    
+		    for (unsigned int i = 0; i < mappedWords.size(); i++){
+		      tempVector.push_back(make_pair(mappedWords[i].first, mappedWords[i].second));
+		    }
+		    
+		    (*shm) = tempVector;
+		    flag = 0;
+
+		}
+		  else if (stream->app == "sort"){
+		          vector<int> mappedInts = 
+			    mapInts(vStrings, vIndexes[i].first, vIndexes[i].second);
+			  // get from shared memory
+			  if (flag != 1)
+			          tempIntVector = *sIntMemoryPtr;
+		    
+			  vector<int>* shm = new (sIntMemoryPtr) vector<int>;
+		    
+			  for (unsigned int i = 0; i < mappedInts.size(); i++){
+			    tempIntVector.push_back(mappedInts[i]);
+			  }
+			  
+			  (*shm) = tempIntVector;
+			  flag = 0;
+			  			  
+		  }
+		  // after map complete: add mappedWords to shared memory
+		  //*sMemoryPtr = mappedInts;
 			// When everything in shared memory: call Shuffle
 			// after shuffle complete: call Reduce
 			// after reduce complete: call Combine
 		}
 		// parent process
 		else if (pid > 0){
-		        // wait for all processes to finish combining and then return to main
-		        wait(&status);
-			cout << "parent pid: " << pid << endl;
-			break;
+		  
+		  // wait for all processes to finish combining and then return to main
+		       wait(&status);
+		       cout << "parent pid: " << pid << endl;
+		       break;
 		}
 		else if (pid < 0){
 		        cout << ("ERROR, fork failed") << endl;
 			exit(0);			      
 		}
+  		    
 	}
 }
 
-void createThreads(executionStream *stream, vector<string> vStrings, vector<pair <int, int> > vIndexes, vector<string>* sMemoryPtr){
+void createThreads(executionStream *stream, vector<string> vStrings, vector<pair <int, int> > vIndexes){
+	
+	InputStructData *inStruct = new InputStructData;
 
 	for(int i = 0; i < stream->num_maps; i++){
-		InputStructData *inStruct = new InputStructData;
 		inStruct->vPartition = vStrings;
 		inStruct->vIndexes.push_back(vIndexes[i].first);
 		inStruct->vIndexes.push_back(vIndexes[i].second);
 		
 		pthread_t newThread;
-		
-		int retval;
-		
-		if(stream->app == "wordcount")
-			retval = pthread_create(&newThread, NULL, runMapWords, (void*)inStruct); 
-			 
-		else if(stream->app == "sort")
-			retval = pthread_create(&newThread, NULL, runMapInts, (void*)inStruct);
-			
+		int retval = pthread_create(&newThread, NULL, runMapWords, (void*)inStruct);    
 	if(!retval)
 		exIDs.push_back(newThread);
 	else
@@ -301,9 +346,8 @@ void createThreads(executionStream *stream, vector<string> vStrings, vector<pair
 	}
 }
 
-// Function that is passed to threads to start mapping words
 void *runMapWords(void* input){
-	
+
 	InputStructData *inStruct = ((InputStructData*)input);
 	vector<pair <string, int> > mappedWords = mapWords(inStruct->vPartition, inStruct->vIndexes[0], inStruct->vIndexes[1]);
 	
@@ -322,9 +366,11 @@ void *runMapWords(void* input){
 	return NULL;
 }
 
-// Function that is passed to threads to start mapping ints
-void *runMapInts(void* input){
-	InputStructData *inStruct = ((InputStructData*)input);
-	vector<int> mappedInts = mapInts(inStruct->vPartition, inStruct->vIndexes[0], inStruct->vIndexes[1]);
-	return NULL;
-}
+
+
+// Print Shared Memory
+//cout << ">>>>>>>>>>>>>>>>\t\tsMemorySize " << (*sMemoryPtr).size() << endl;
+// for (unsigned int i = 0; i < (*sMemoryPtr).size(); i++){
+//   cout << "sMemPtr is: " << (*sMemoryPtr)[i].first << " " << (*sMemoryPtr)[i].second << endl;
+// }
+		    

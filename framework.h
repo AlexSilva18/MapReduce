@@ -35,8 +35,6 @@ struct partitionIndexes {
   vector<pair <int, int> > indexes;
 };
 
-
-
 // iterates through all the flags to verify their validity
 int getFlag(char**, executionStream*);
 
@@ -49,13 +47,15 @@ void printVector(vector<inputType>);
 
 vector<pair <int, int> > split(executionStream*, vector<string> vInput);
 
-vector<string>* createSharedMemory(vector<string>);
-void createProcesses(executionStream*, vector<string>, vector<pair <int, int> >, vector<string>*);
-void createThreads(executionStream*, vector<string>, vector<pair <int, int> >, vector<string>*);
+vector<pair <string, int> >* createSharedMemoryWords(vector<string> vStrings);
+
+vector<int>* createSharedMemoryInts(vector<string>);
+
+void createProcesses(executionStream*, vector<string>, vector<pair <int, int> >);
+void createThreads(executionStream*, vector<string>, vector<pair <int, int> >);
 
 
 void *runMapWords(void*);
-void *runMapInts(void*);
 // shuffle
 
 // combine

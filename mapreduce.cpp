@@ -4,11 +4,11 @@
 #include <sys/shm.h>
 
 
-// Maps words to their frequency
-// Returns a vector pair <string, int>
 vector<pair <string, int> > mapWords(vector<string> vStrings, int start, int end){
 	vector<pair <string, int> > mappedWords;
 	vector<string> vPartition;
+
+	cout << "Here" << endl;
 	
 	for(int i = start; i <= end; i++){
 	  vPartition.push_back(vStrings[i]);
@@ -34,19 +34,17 @@ vector<pair <string, int> > mapWords(vector<string> vStrings, int start, int end
 		}
 	}
 	//cout << "mappedWords size: " << mappedWords.size() << endl;
-	/*for(unsigned int i = 0; i < mappedWords.size(); i++){
-		cout << mappedWords[i].first << " " << mappedWords[i].second << endl;
-	}*/
+	// for(unsigned int i = 0; i < mappedWords.size(); i++){
+	// 	cout << mappedWords[i].first << " " << mappedWords[i].second << endl;
+	// }
 		
   return mappedWords;
 }
-
 
 int reduceWords(){
   return 0;
 }
 
-// Sorts ints given in parameter vStrings
 vector<int> mapInts(vector<string> vStrings, int start, int end){
 
   vector<int> vPartition;
@@ -60,11 +58,11 @@ vector<int> mapInts(vector<string> vStrings, int start, int end){
 
   sort(vPartition.begin(), vPartition.end());
 
-  /*for(unsigned int i = 0; i < vPartition.size(); i++){
-          cout << vPartition[i]<< endl;
-  }*/
+  // for(unsigned int i = 0; i < vPartition.size(); i++){
+  //         cout << vPartition[i]<< endl;
+  // }
 
-  return vPartition;
+  return vPartition;;
 }
 
 int reduceInts(){
