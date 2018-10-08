@@ -54,6 +54,7 @@ int getFlag(char* inputFlags[], executionStream *stream){
 
 }
 
+// Reads input from integer file
 vector<string> readInputInts(executionStream *stream){
         
 	const char* file = stream->inputFile.c_str();
@@ -81,7 +82,7 @@ vector<string> readInputInts(executionStream *stream){
 	//split(stream, vStrings);
 }
 
-
+// Reads input from word file
 vector<string> readInputWords(executionStream *stream){
 
 	// Open file to read
@@ -169,6 +170,7 @@ void printVector(vector<inputType> vector){
 	}
 }
 
+
 vector<pair <int, int> > split(executionStream *stream, vector<string> vInput){
         vector<pair <int, int> > indexes;
 	int splitFactor;
@@ -242,6 +244,7 @@ vector<string>* createSharedMemory(vector<string> vStrings){
 	return sMemoryPtr;
 }
 
+
 void createProcesses(executionStream *stream, vector<string> vStrings, vector<pair <int, int> > vIndexes, vector<string>* sMemoryPtr){
         // paralelised MapReduce, Shuffle and Combine
         for(int i = 0; i < stream->num_maps; i++){
@@ -305,6 +308,7 @@ void createThreads(executionStream *stream, vector<string> vStrings, vector<pair
 	}
 }
 
+// Function that is passed to threads to start mapping words
 void *runMapWords(void* input){
 	
 	InputStructData *inStruct = ((InputStructData*)input);
@@ -320,6 +324,7 @@ void *runMapWords(void* input){
 	return NULL;
 }
 
+// Function that is passed to threads to start mapping ints
 void *runMapInts(void* input){
 	InputStructData *inStruct = ((InputStructData*)input);
 	mapInts(inStruct->vPartition, inStruct->vIndexes[0], inStruct->vIndexes[1]);

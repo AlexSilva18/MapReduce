@@ -4,6 +4,8 @@
 #include <sys/shm.h>
 
 
+// Maps words to their frequency
+// Returns a vector pair <string, int>
 vector<pair <string, int> > mapWords(vector<string> vStrings, int start, int end){
 	vector<pair <string, int> > mappedWords;
 	vector<string> vPartition;
@@ -39,10 +41,12 @@ vector<pair <string, int> > mapWords(vector<string> vStrings, int start, int end
   return mappedWords;
 }
 
+
 int reduceWords(){
   return 0;
 }
 
+// Sorts ints given in parameter vStrings
 vector<int> mapInts(vector<string> vStrings, int start, int end){
 
   vector<int> vPartition;

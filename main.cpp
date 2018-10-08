@@ -3,6 +3,7 @@
 
 int main(int argc, char* argv[]){
 
+	// Argument checks
         if (argc != 13){
 	        cout << "ERROR, incorrect input" << endl;
 		exit(0);
@@ -14,6 +15,8 @@ int main(int argc, char* argv[]){
 	        cout << "ERROR, Invalid Flags" << endl;
 		exit(0);
 	}
+
+	// When running wordcount, this code is executed
         if (stream->app == "wordcount"){
 	  
 	        // read input file, retrieve all words and store them into a vector
@@ -31,6 +34,8 @@ int main(int argc, char* argv[]){
 		        createThreads(stream, vStrings, vIndexes, sMemoryPtr);
 				
 	}
+	
+	// When running sort, this code is executed
         else if (stream->app == "sort"){
 	        vector<string> vStrings = readInputInts(stream);
 		vector<pair <int, int> > vIndexes = split(stream, vStrings);
