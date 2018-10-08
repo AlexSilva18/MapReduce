@@ -116,11 +116,11 @@ vector<string> readInputWords(executionStream *stream){
 				currWord = currWord.substr(0, cLen-1);
 				cLen--;
 
-				if(cLen > 1 && (currWord[cLen-2] == '.' || currWord[cLen-2] == '?' 
-				|| currWord[cLen-2] == '!' || currWord[cLen-2] == '\''))
-				  currWord[cLen-2] = '\0';
+				if(cLen > 1 && (currWord[cLen-1] == '.' || currWord[cLen-1] == '?' 
+						|| currWord[cLen-1] == '!' || currWord[cLen-1] == '\'')){
+				  currWord[cLen-1] = '\0';
 				  currWord = currWord.substr(0, cLen-1);
-
+				}
 			}
 		
 			// If a word contains a hyphen, split them
@@ -326,15 +326,19 @@ void createProcesses(executionStream *stream, vector<string> vStrings, vector<pa
 
 void createThreads(executionStream *stream, vector<string> vStrings, vector<pair <int, int> > vIndexes){
 	
-	InputStructData *inStruct = new InputStructData;
-
 	for(int i = 0; i < stream->num_maps; i++){
+	  	InputStructData *inStruct = new InputStructData;
 		inStruct->vPartition = vStrings;
 		inStruct->vIndexes.push_back(vIndexes[i].first);
 		inStruct->vIndexes.push_back(vIndexes[i].second);
+		inStruct->flag = i;
 		
 		pthread_t newThread;
-		int retval = pthread_create(&newThread, NULL, runMapWords, (void*)inStruct);    
+		int retval;
+		if (stream->app == "wordcount")
+		  retval = pthread_create(&newThread, NULL, runMapWords, (void*)inStruct);    
+		else if (stream->app == "sorting")
+		  retval = pthread_create(&newThread, NULL, runMapInts, (void*)inStruct);    
 	if(!retval)
 		exIDs.push_back(newThread);
 	else
@@ -347,14 +351,58 @@ void createThreads(executionStream *stream, vector<string> vStrings, vector<pair
 }
 
 void *runMapWords(void* input){
-
+        vector<pair <string, int> > tempVector;
 	InputStructData *inStruct = ((InputStructData*)input);
+	vector<pair <string, int> >* sMemoryPtr = createSharedMemoryWords(inStruct->vPartition);
+	
 	vector<pair <string, int> > mappedWords = mapWords(inStruct->vPartition, inStruct->vIndexes[0], inStruct->vIndexes[1]);
 	
-	for(unsigned int i = 0; i < mappedWords.size(); i++){
-		cout << mappedWords[i].first << " " << mappedWords[i].second << endl;
-	}
+	
+	// for(unsigned int i = 0; i < mappedWords.size(); i++){
+	// 	cout << mappedWords[i].first << " " << mappedWords[i].second << endl;
+	// }
         		
+	if (inStruct->flag != 0)
+	        tempVector = *sMemoryPtr;
+	
+	vector<pair <string, int> >* shm = new (sMemoryPtr) vector<pair <string, int> >;
+		    
+	for (unsigned int i = 0; i < mappedWords.size(); i++){
+	  tempVector.push_back(make_pair(mappedWords[i].first, mappedWords[i].second));
+	}
+	
+	(*shm) = tempVector;
+			  
+        		// do something with mappedWords
+
+			// call Map
+			// after map complete: add mappedWords to shared memory
+			// When everything in shared memory: call Shuffle
+			// after shuffle complete: call Reduce
+			// after reduce complete: call Combine
+
+	return NULL;
+}
+
+void *runMapInts(void* input){
+	vector<int> tempIntVector;
+	InputStructData *inStruct = ((InputStructData*)input);
+	vector<int>* sIntMemoryPtr = createSharedMemoryInts(inStruct->vPartition);
+
+	vector<int> mappedInts = mapInts(inStruct->vPartition, inStruct->vIndexes[0], inStruct->vIndexes[1]);
+	
+
+	if (inStruct->flag != 0)
+	        tempIntVector = *sIntMemoryPtr;
+	
+	vector<int>* shm = new (sIntMemoryPtr) vector<int>;
+		    
+	for (unsigned int i = 0; i < mappedInts.size(); i++){
+	        tempIntVector.push_back(mappedInts[i]);
+	}
+	
+	(*shm) = tempIntVector;
+	
         		// do something with mappedWords
 
 			// call Map

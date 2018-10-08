@@ -29,6 +29,7 @@ struct executionStream {
 struct InputStructData {
 	vector<string> vPartition;
         vector<int> vIndexes;
+        int flag;
 };
 
 struct partitionIndexes {
@@ -56,6 +57,8 @@ void createThreads(executionStream*, vector<string>, vector<pair <int, int> >);
 
 
 void *runMapWords(void*);
+void *runMapInts(void*);
+
 // shuffle
 
 // combine
