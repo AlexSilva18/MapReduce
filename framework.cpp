@@ -191,7 +191,6 @@ vector<pair <int, int> > split(executionStream *stream, vector<string> vInput){
 		}
 		else{
 		  vInputSizes.push_back(splitFactor);
-	        
 		}
 	}
 	// Fills in input structs and starts threads
@@ -278,10 +277,9 @@ void createProcesses(executionStream *stream, vector<string> vStrings, vector<pa
 }
 
 void createThreads(executionStream *stream, vector<string> vStrings, vector<pair <int, int> > vIndexes, vector<string>* sMemoryPtr){
-	
-	InputStructData *inStruct = new InputStructData;
 
 	for(int i = 0; i < stream->num_maps; i++){
+		InputStructData *inStruct = new InputStructData;
 		inStruct->vPartition = vStrings;
 		inStruct->vIndexes.push_back(vIndexes[i].first);
 		inStruct->vIndexes.push_back(vIndexes[i].second);

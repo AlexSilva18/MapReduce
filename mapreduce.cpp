@@ -60,7 +60,7 @@ vector<int> mapInts(vector<string> vStrings, int start, int end){
           cout << vPartition[i]<< endl;
   }
 
-  return vPartition;;
+  return vPartition;
 }
 
 int reduceInts(){
