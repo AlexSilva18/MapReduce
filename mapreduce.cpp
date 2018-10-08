@@ -34,9 +34,9 @@ vector<pair <string, int> > mapWords(vector<string> vStrings, int start, int end
 		}
 	}
 	//cout << "mappedWords size: " << mappedWords.size() << endl;
-	for(unsigned int i = 0; i < mappedWords.size(); i++){
+	/*for(unsigned int i = 0; i < mappedWords.size(); i++){
 		cout << mappedWords[i].first << " " << mappedWords[i].second << endl;
-	}
+	}*/
 		
   return mappedWords;
 }
@@ -60,9 +60,9 @@ vector<int> mapInts(vector<string> vStrings, int start, int end){
 
   sort(vPartition.begin(), vPartition.end());
 
-  for(unsigned int i = 0; i < vPartition.size(); i++){
+  /*for(unsigned int i = 0; i < vPartition.size(); i++){
           cout << vPartition[i]<< endl;
-  }
+  }*/
 
   return vPartition;
 }

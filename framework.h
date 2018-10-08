@@ -35,6 +35,8 @@ struct partitionIndexes {
   vector<pair <int, int> > indexes;
 };
 
+
+
 // iterates through all the flags to verify their validity
 int getFlag(char**, executionStream*);
 

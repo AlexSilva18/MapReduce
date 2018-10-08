@@ -113,10 +113,12 @@ vector<string> readInputWords(executionStream *stream){
 				  			        
 			        // NEED TO FIX "control.'"
 			        currWord[cLen-1] = '\0';
+			        currWord = currWord.substr(0, cLen-1);
 
 				if(cLen > 1 && (currWord[cLen-2] == '.' || currWord[cLen-2] == '?' 
 				|| currWord[cLen-2] == '!' || currWord[cLen-2] == '\''))
 				  currWord[cLen-2] = '\0';
+				  currWord = currWord.substr(0, cLen-1);
 			}
 		
 			// If a word contains a hyphen, split them
@@ -304,6 +306,10 @@ void *runMapWords(void* input){
 	
 	InputStructData *inStruct = ((InputStructData*)input);
 	vector<pair <string, int> > mappedWords = mapWords(inStruct->vPartition, inStruct->vIndexes[0], inStruct->vIndexes[1]);
+	
+	for(unsigned int i = 0; i < mappedWords.size(); i++){
+		cout << mappedWords[i].first << " " << mappedWords[i].second << endl;
+	}
         		
         		// do something with mappedWords
 
