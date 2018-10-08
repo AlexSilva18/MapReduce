@@ -47,7 +47,6 @@ int main(int argc, char* argv[]){
 		
 		else if (stream->impl == "threads")
 		        createThreads(stream, vStrings, vIndexes, sMemoryPtr);
-		//vector<int> mappedInts = mapInts(vStrings, indexes[0].first, indexes[0].second);
 
 	}
 	return 0;

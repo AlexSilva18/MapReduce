@@ -70,16 +70,12 @@ vector<string> readInputInts(executionStream *stream){
 			readFile >> currStr;
 			vStrings.push_back(currStr);
 		}
-
-		//printVector(vInts);
-		// CALL SPLIT METHOD HERE
 	}
 	else{
 	  cout << "COULD NOT OPEN FILE";
 	  exit(0);
 	}
 	return vStrings;
-	//split(stream, vStrings);
 }
 
 // Reads input from word file
@@ -154,11 +150,7 @@ vector<string> readInputWords(executionStream *stream){
 		exit(0);
 	}
 	
-	//printVector(vStrings);
 	return vStrings;
-	//split(stream, vStrings);
-	
-
 }
 
 
@@ -177,7 +169,6 @@ vector<pair <int, int> > split(executionStream *stream, vector<string> vInput){
 	int vSize;
 	
 	vSize = vInput.size();
-	cout << "vSize: " << vSize << endl;
 
 	splitFactor = vSize/(stream->num_maps);
 	int remainder = vSize % stream->num_maps;
@@ -312,10 +303,11 @@ void createThreads(executionStream *stream, vector<string> vStrings, vector<pair
 void *runMapWords(void* input){
 	
 	InputStructData *inStruct = ((InputStructData*)input);
-	mapWords(inStruct->vPartition, inStruct->vIndexes[0], inStruct->vIndexes[1]);
-	//vector<string> vStrings = inStruct -> vPartition;
-        		        // call Map
-  	//vector<pair <string, int> > mappedWords = mapWords(vStrings, vIndexes[i].first, vIndexes[i].second);
+	vector<pair <string, int> > mappedWords = mapWords(inStruct->vPartition, inStruct->vIndexes[0], inStruct->vIndexes[1]);
+        		
+        		// do something with mappedWords
+
+			// call Map
 			// after map complete: add mappedWords to shared memory
 			// When everything in shared memory: call Shuffle
 			// after shuffle complete: call Reduce
@@ -327,6 +319,6 @@ void *runMapWords(void* input){
 // Function that is passed to threads to start mapping ints
 void *runMapInts(void* input){
 	InputStructData *inStruct = ((InputStructData*)input);
-	mapInts(inStruct->vPartition, inStruct->vIndexes[0], inStruct->vIndexes[1]);
+	vector<int> mappedInts = mapInts(inStruct->vPartition, inStruct->vIndexes[0], inStruct->vIndexes[1]);
 	return NULL;
 }
