@@ -14,6 +14,8 @@
 #include <unistd.h>
 #include <sys/types.h>
 #include <sys/wait.h>
+#include <mutex>
+#include <sstream>
 
 using namespace std;
 
@@ -30,6 +32,11 @@ struct InputStructData {
 	vector<string> vPartition;
         vector<int> vIndexes;
         int flag;
+        vector<pair <string, int> >* sMemoryPtr;
+        vector<string>* sIntMemoryPtr;
+        executionStream* execStream;
+        int partitionNumber;
+	int turn;
 };
 
 struct partitionIndexes {
@@ -46,24 +53,26 @@ vector<string> readInputInts(executionStream*);
 template <class inputType>
 void printVector(vector<inputType>);
 
-vector<pair <int, int> > split(executionStream*, vector<string> vInput);
+vector<pair <int, int> > split(executionStream*, vector<string>);
 
-vector<pair <string, int> >* createSharedMemoryWords(vector<string> vStrings);
+template <class vectorType>
+vector<pair <string, int> >* createSharedMemoryWords(vector<vectorType>);
 
-vector<int>* createSharedMemoryInts(vector<string>);
+vector<string>* createSharedMemoryInts(vector<string>);
 
-void createProcesses(executionStream*, vector<string>, vector<pair <int, int> >);
-void createThreads(executionStream*, vector<string>, vector<pair <int, int> >);
+void createProcesses(executionStream*, vector<string>, vector<pair <int, int> >, vector<pair <string, int> >*, vector<string>*);
 
+void createThreads(executionStream*, vector<string>, vector<pair <int, int> >, vector<pair <string, int> >*, vector<string>*);
 
 void *runMapWords(void*);
 void *runMapInts(void*);
 
-// shuffle
+void shuffleWords(executionStream*, vector<pair <string, int> >*, int, int, int);
+void shuffleInts(executionStream*, vector<string>*, int, int, int);
 
-// combine
+vector<int> combineInts(vector<vector <int> >);
 
-
+vector<pair <int, int> > splitReduce(executionStream *, vector<string>);
 
 
 #endif
